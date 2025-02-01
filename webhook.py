@@ -29,6 +29,7 @@ def newItem(user_id, item_data):
         'user': user_id,
         'name': item_data["name"],
         'price': Decimal(item_data["price"]),
+        'currency': item_data["currency"],  # 追加
         'next_date': item_data["next_date"],
         'interval': Decimal(item_data["interval"]),
         'unit': item_data["unit"],
@@ -174,17 +175,23 @@ def textCommand(user_id, message, reply_token):
         
         message_list = message.split(" ")
         
+        # 必須項目が不足していないかチェック（memo は任意なので、必須は 7 個）
+        if len(message_list) < 9:
+            api.sendReply(reply_token, [format.messageText("コマンドの形式が正しくありません。\n形式: '> create [name] [price] [currency] [next_date] [interval] [unit] [payment_method] [memo(optional)]'")])
+            return
+        
         data = {
             "name": message_list[2],
-            "price": int(message_list[3]),
-            "next_date": message_list[4],
-            "interval": int(message_list[5]),
-            "unit": message_list[6],
-            "payment_method": message_list[7]
+            "price": message_list[3],
+            "currency": message_list[4],  # 追加
+            "next_date": message_list[5],
+            "interval": message_list[6],
+            "unit": message_list[7],
+            "payment_method": message_list[8]
         }
         
-        if len(message_list) == 9:
-            data["memo"] = message_list[8]
+        if len(message_list) == 10:
+            data["memo"] = message_list[9]
         
         id = createItem(user_id, data)
         
